@@ -1,6 +1,7 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MainPageComponent } from './pages/main.component';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {MainPageComponent} from './pages/main.component';
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -8,9 +9,11 @@ import { MainPageComponent } from './pages/main.component';
   ],
   imports: [
     CommonModule,
+    FormsModule,
   ],
   exports: [
     MainPageComponent,
   ]
 })
-export class CoreModule { }
+export class CoreModule {
+}

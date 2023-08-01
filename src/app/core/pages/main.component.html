@@ -1,7 +1,90 @@
-<div class="w-full h-auto p-10">
+<div class="p-10 w-full">
 
-  <h1 class="text-gray-700 text-3xl font-bold">Categories and Items</h1>
-  <hr>
+  <h1 class="text-gray-700 text-3xl font-bold">Categories</h1>
+  <hr class="my-3">
 
+  <div class="w-full flex flex-row">
+
+    <div class="w-full flex flex-col space-y-1">
+
+      <div class="w-full flex flex-row space-x-1 justify-between items-center">
+        <div class="border bg-gray-100 rounded-md p-1 space-x-1">
+          <button class="button text-xs" [disabled]="categoryParams.pageNo === 0">Prev</button>
+          <span class="text-gray-600 text-sm font-semibold px-2 py-1">{{ categoryParams.pageNo + 1 }}</span>
+          <button class="button text-xs">Next</button>
+        </div>
+
+        <div class="space-x-1 flex flex-row">
+          <div class="border bg-gray-100 rounded-md p-1">
+            <label class="text-gray-600 text-sm font-bold mx-2 py-1">Results per page</label>
+            <select class="border bg-gray-200 text-gray-600 text-sm font-semibold px-2 py-1 rounded-md appearance-none">
+              <option value="">05</option>
+              <option value="">10</option>
+              <option value="">15</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+      <ng-container *ngFor="let category of categories$ | async">
+
+        <div
+          class="w-full flex flex-row justify-between items-center p-2 border border-gray-200 rounded-md text-gray-500 font-semibold hover:shadow hover:bg-gray-100 hover:cursor-pointer transition-all">
+          <span>{{ category.name }}</span>
+          <div class="space-x-1">
+
+            <button
+              *ngIf="!isUpdating || category.id !== categoryId"
+              (click)="toUpdate(category)"
+              class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">Update</button>
+
+            <button
+              *ngIf="(isUpdating && category.id === categoryId)"
+              (click)="cancelUpdate(category)"
+              class="bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded">Cancel</button>
+
+            <button
+              (click)="deleteCategory(category)"
+              class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">Delete</button>
+          </div>
+        </div>
+      </ng-container>
+
+    </div>
+    <div class="w-full">
+
+      <form
+        class="m-5 px-3 py-2 w-full space-y-1 flex flex-col"
+        (ngSubmit)="manageCategory(isUpdating, categoryId)">
+
+        <span *ngIf="!isUpdating" class="text-gray-500 font-semibold">Create a new category</span>
+        <span *ngIf="isUpdating" class="text-gray-500 font-semibold">Update this category</span>
+
+        <input
+          [(ngModel)]="categoryObject.name"
+          name="name"
+          type="text"
+          placeholder="Name"
+          class="input">
+        <textarea
+          [(ngModel)]="categoryObject.description"
+          name="description"
+          placeholder="Description"
+          class="input"></textarea>
+        <button
+          [disabled]="!validCategoryForm()"
+          class="button w-80">
+
+          <span *ngIf="!isUpdating">Create category</span>
+          <span *ngIf="isUpdating">Update category</span>
+
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
 
 </div>

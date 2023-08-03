@@ -26,7 +26,7 @@ export class ApiUrlService {
   }
 
   get itemSearchURL() {
-    return `${this.categoryURL}/Search`;
+    return `${this.itemURL}/Search`;
   }
 
 

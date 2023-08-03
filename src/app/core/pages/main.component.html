@@ -1,119 +1,189 @@
-<div class="p-10 w-full">
+<ng-container *ngIf="loading$ | async else mainTamplate">
 
+  <div class="flex w-screen h-screen items-center justify-center">
+    <span class="spinner animate-spin"></span>
+  </div>
 
-  <div class="w-full">
+</ng-container>
 
-    <div id="tab-buttons" class="flex items-center justify-center">
-      <button class="text-base font-semibold text-white inline-block px-4 py-2 m-0.5 w-32 bg-blue-700 rounded" (click)="cycleTabs(0)">Categories</button>
-      <button class="text-base font-semibold text-white inline-block px-4 py-2 m-0.5 w-32 bg-blue-700 rounded" (click)="cycleTabs(1)">Items</button>
-    </div>
+<ng-template #mainTamplate>
 
-    <div #tabsContainer class="shadow-lg border rounded-lg my-2 px-5 py-4 max-w-6xl mx-auto">
-      <ng-container [ngSwitch]="animationIndex">
+  <div class="p-10 w-full">
 
-        <ng-template [ngSwitchCase]="0">
-          <h1 class="text-gray-700 text-2xl font-bold">Categories</h1>
-          <hr class="my-2">
-          <div class="w-full flex flex-row space-x-3">
-            <div class="w-full flex flex-col space-y-1">
-              <div class="w-full flex flex-row justify-between items-center">
-                <div class="bg-gray-100 rounded-md space-x-1">
-                  <button class="p-1 px-2 text-blue-500 text-xs font-semibold disabled:text-blue-300" [disabled]="categoryParams.pageNo === 0">Prev</button>
-                  <span class="bg-gray-200 text-sm font-bold px-2 py-1">{{ categoryParams.pageNo + 1 }}</span>
-                  <button class="p-1 px-2 text-blue-500 text-xs font-semibold">Next</button>
-                </div>
-                <div class="space-x-1 flex flex-row">
-                  <div class="bg-gray-100 rounded-md">
-                    <label class="text-gray-600 text-xs font-bold mx-2 py-1">Results per page</label>
-                    <select class="cursor-pointer outline-0 border bg-gray-200 text-gray-600 text-sm font-semibold px-2 py-0.5 rounded-md appearance-none">
-                      <option value="">05</option>
-                      <option value="">10</option>
-                      <option value="">15</option>
-                    </select>
+    <div class="w-full">
+
+      <div id="tab-buttons" class="flex items-center justify-center">
+        <button class="text-base font-semibold text-white inline-block px-4 py-2 m-0.5 w-32 bg-blue-700 rounded" (click)="cycleTabs(0)">Categories</button>
+        <button class="text-base font-semibold text-white inline-block px-4 py-2 m-0.5 w-32 bg-blue-700 rounded" (click)="cycleTabs(1)">Items</button>
+      </div>
+
+      <div #tabsContainer class="shadow-lg border rounded-lg my-2 px-5 py-4 max-w-6xl mx-auto">
+        <ng-container [ngSwitch]="animationIndex">
+
+          <ng-template [ngSwitchCase]="0">
+            <h1 class="list-title">Categories</h1>
+            <hr class="my-2">
+            <div class="w-full flex flex-row space-x-3">
+              <div class="w-full flex flex-col space-y-1">
+
+                <ng-container *ngFor="let category of categories$ | async; let i = index">
+                  <div class="list-item">
+                    <div class="space-x-3">
+                      <span class="item-property">Items: {{ categoryContainsItems(category) }}</span>
+                      <span class="item-header"><b>Category name:</b> {{ category.name }}</span>
+                    </div>
+                    <div class="space-x-1">
+                      <button
+                        *ngIf="!isUpdating || (category.id !== categoryId)"
+                        (click)="toUpdate(category, i)"
+                        class="button button-green">Update
+                      </button>
+                      <button
+                        *ngIf="(isUpdating && category.id === categoryId)"
+                        (click)="cancelUpdate()"
+                        class="button button-orange">Cancel
+                      </button>
+                      <button
+                        [disabled]="(categoryContainsItems(category) !== 0)"
+                        (click)="toDelete(category, i)"
+                        class="button button-red">Delete
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </ng-container>
+
               </div>
+              <div class="w-full border border-dashed px-5 py-3 rounded">
+                <h1 class="form-title">Category details and options</h1>
+                <form
+                  class="my-2 w-full space-y-2 flex flex-col"
+                  (ngSubmit)="manageCategory(isUpdating, categoryId)"
+                  [formGroup]="category_form">
 
-              <ng-container *ngFor="let category of categories$ | async; let i = index">
-                <div
-                  class="w-full flex flex-row justify-between items-center p-2 border border-gray-200 rounded-md text-gray-600 font-semibold hover:shadow hover:bg-gray-50 hover:border-gray-300 hover:cursor-pointer transition-all">
-                  <span>{{ category.name }}</span>
-                  <div class="space-x-1">
-                    <button
-                      *ngIf="!isUpdating || category.id !== categoryId"
-                      (click)="toUpdate(category, i)"
-                      class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">Update
-                    </button>
-                    <button
-                      *ngIf="(isUpdating && category.id === categoryId)"
-                      (click)="cancelUpdate()"
-                      class="bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded">Cancel
-                    </button>
-                    <button
-                      (click)="toDelete(category, i)"
-                      class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">Delete
-                    </button>
+                  <span *ngIf="(operationResult !== '')" class="bg-red-200 px-2 py-1 text-xs font-semibold text-gray-700 rounded h-auto w-auto flex">{{ operationResult }}</span>
+
+                  <input
+                    formControlName="name"
+                    name="name"
+                    type="text"
+                    placeholder="Name"
+                    class="input">
+                  <textarea
+                    rows="3"
+                    formControlName="description"
+                    name="description"
+                    placeholder="Description"
+                    class="input"></textarea>
+                  <button [disabled]="!validCategoryForm()" *ngIf="!isUpdating" class="button button-blue w-80">Create category</button>
+                  <button [disabled]="!validCategoryForm()" *ngIf="isUpdating" class="button button-green w-80">Update category</button>
+                </form>
+
+              </div>
+            </div>
+
+          </ng-template>
+
+
+          <ng-template [ngSwitchCase]="0">
+
+            <h1 class="text-gray-700 text-2xl font-bold">Items</h1>
+            <hr class="my-2">
+            <div class="w-full flex flex-row space-x-3">
+              <div class="w-full flex flex-col space-y-1">
+
+                <ng-container *ngFor="let item of items$ | async; let i = index">
+                  <div
+                    class="w-full flex flex-row justify-between items-center p-2 border border-gray-200 rounded-md text-gray-600 font-semibold hover:shadow hover:bg-gray-50 hover:border-gray-300 hover:cursor-pointer transition-all">
+                    <span>{{ item.name }}</span>
+                    <!--                  <div class="space-x-1">-->
+                    <!--                    <button-->
+                    <!--                      *ngIf="!isUpdating || (category.id !== categoryId)"-->
+                    <!--                      (click)="toUpdate(category, i)"-->
+                    <!--                      class="bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">Update-->
+                    <!--                    </button>-->
+                    <!--                    <button-->
+                    <!--                      *ngIf="(isUpdating && category.id === categoryId)"-->
+                    <!--                      (click)="cancelUpdate()"-->
+                    <!--                      class="bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded">Cancel-->
+                    <!--                    </button>-->
+                    <!--                    <button-->
+                    <!--                      (click)="toDelete(category, i)"-->
+                    <!--                      class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">Delete-->
+                    <!--                    </button>-->
+                    <!--                  </div>-->
                   </div>
-                </div>
-              </ng-container>
+                </ng-container>
 
+              </div>
+              <div class="w-full border border-dashed px-5 py-3 rounded">
+                <h1 class="text-gray-600 font-semibold">Category details and options</h1>
+                <form
+                  class="my-2 w-full space-y-2 flex flex-col"
+                  (ngSubmit)="manageCategory(isUpdating, categoryId)"
+                  [formGroup]="item_form">
+                  <input
+                    formControlName="code"
+                    name="code"
+                    type="text"
+                    placeholder="Code"
+                    class="input">
+                  <input
+                    formControlName="name"
+                    name="name"
+                    type="text"
+                    placeholder="Name"
+                    class="input">
+                  <textarea
+                    rows="3"
+                    formControlName="description"
+                    name="description"
+                    placeholder="Description"
+                    class="input"></textarea>
+                  <div class="flex flex-row justify-between w-80 space-x-2">
+                    <input
+                      formControlName="defaultPrice"
+                      name="defaultPrice"
+                      type="number"
+                      placeholder="Default price"
+                      class="input input-number">
+                    <input
+                      formControlName="defaultCost"
+                      name="defaultCost"
+                      type="number"
+                      placeholder="Default cost"
+                      class="input input-number">
+                  </div>
+
+
+                  <button [disabled]="!validCategoryForm()" *ngIf="!isUpdating" class="button button-create w-80">Create category</button>
+                  <button [disabled]="!validCategoryForm()" *ngIf="isUpdating" class="button button-update w-80">Update category</button>
+                </form>
+
+              </div>
             </div>
-            <div class="w-full border border-dashed px-5 py-3 rounded">
-              <h1 class="text-gray-600 font-semibold">Category details and options</h1>
-              <form
-                class="my-2 w-full space-y-2 flex flex-col"
-                (ngSubmit)="manageCategory(isUpdating, categoryId)"
-                [formGroup]="category_form">
-                <input
-                  formControlName="name"
-                  name="name"
-                  type="text"
-                  placeholder="Name"
-                  class="input">
-                <textarea
-                  rows="3"
-                  formControlName="description"
-                  name="description"
-                  placeholder="Description"
-                  class="input"></textarea>
-                <button [disabled]="!validCategoryForm()" *ngIf="!isUpdating" class="button button-create w-80">Create category</button>
-                <button [disabled]="!validCategoryForm()" *ngIf="isUpdating" class="button button-update w-80">Update category</button>
-              </form>
 
-            </div>
-          </div>
-
-        </ng-template>
+          </ng-template>
 
 
-        <ng-template [ngSwitchCase]="1">
+        </ng-container>
 
-          <h1 class="text-2xl text-red-500">Tab 2 Content</h1>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam, doloremque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam, doloremque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam, doloremque.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam, doloremque.</p>
+      </div>
 
-        </ng-template>
-
-
-      </ng-container>
 
     </div>
 
+    <ng-container *ngIf="isDeleting">
+      <div class="flex w-screen h-screen fixed top-0 left-0 bg-black/20 justify-center items-center backdrop-blur-sm">
+        <div class="w-96 bg-white flex rounded shadow-lg px-3 flex-col">
+          <h1 class="text-gray-600 font-semibold my-4">Delete the selected category?</h1>
+          <div class="flex flex-row justify-end space-x-1 mb-2">
+            <button (click)="cancelDelete()" class="button button-red w-20">Cancel</button>
+            <button (click)="deleteCategory()" class="button button-blue w-20">Delete</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
 
   </div>
 
-  <ng-container *ngIf="isDeleting">
-    <div class="flex w-screen h-screen fixed top-0 left-0 bg-black/20 justify-center items-center backdrop-blur-sm">
-      <div class="w-96 bg-white flex rounded shadow-lg px-3 flex-col">
-        <h1 class="text-gray-600 font-semibold my-4">Delete the selected category?</h1>
-        <div class="flex flex-row justify-end space-x-1 mb-2">
-          <button (click)="cancelDelete()" class="button button-delete w-20">Cancel</button>
-          <button (click)="deleteCategory()" class="button button-create w-20">Delete</button>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-</div>
+</ng-template>

@@ -1,10 +1,9 @@
 import { CategoryInterface } from "./category.interface";
 
 export interface ItemInterface {
-  id: string,
+  id?: string,
   code: string,
   name: string,
   description: string,
-  category: CategoryInterface
-
+  category: string
 }

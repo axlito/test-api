@@ -20,8 +20,18 @@ module.exports = {
         "fade-in-left 1s cubic-bezier(0.390, 0.575, 0.565, 1.000)   both",
       "scale-in-center":
         "scale-in-center 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940)   both",
+      "spin":
+        "spin 1s linear infinite"
     },
     keyframes: {
+      "spin": {
+        from: {
+          transform: "rotate(0deg)",
+        },
+        to: {
+          transform: "rotate(360deg)",
+        },
+      },
       "fade-in-right": {
         "0%": {
           transform: "translateX(50px)",

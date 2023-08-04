@@ -6,6 +6,10 @@ body {
   @apply w-10 h-10 flex border border-4 rounded-full border-blue-50 border-t-blue-500;
 }
 
+.spinner-button {
+  @apply w-4 h-4 flex border border-4 rounded-full border-white/30 border-t-white/80;
+}
+
 .list-title {
   @apply text-gray-600 text-xl font-bold;
 }
@@ -45,8 +49,6 @@ body {
 .form-title {
   @apply text-gray-600 text-sm font-semibold;
 }
-
-
 
 
 .input {

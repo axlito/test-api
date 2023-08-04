@@ -10,20 +10,20 @@ import {ItemInterface} from "../interfaces/item.interface";
 })
 export class DataService {
 
-  public searchParams = {
+  private _searchParams = {
     pageNo: 0,
     pageSize: 50,
     filters: null
   };
+
+  private _categories = new BehaviorSubject<CategoryInterface[]>([]);
+  private _items = new BehaviorSubject<ItemInterface[]>([]);
 
   constructor(
     private httpClient: HttpClient,
     private apiUrlService: ApiUrlService,
   ) {
   }
-
-  private _categories = new BehaviorSubject<CategoryInterface[]>([]);
-  private _items = new BehaviorSubject<ItemInterface[]>([]);
 
   get categories(): CategoryInterface[] {
     return this._categories.value;
@@ -44,8 +44,8 @@ export class DataService {
   public loadData = () => {
 
     return forkJoin([
-      this.httpClient.post<any>(this.apiUrlService.categorySearchURL, this.searchParams),
-      this.httpClient.post<any>(this.apiUrlService.itemSearchURL, this.searchParams)
+      this.httpClient.post<any>(this.apiUrlService.categorySearchURL, this._searchParams),
+      this.httpClient.post<any>(this.apiUrlService.itemSearchURL, this._searchParams)
     ]).pipe(
       tap(([res1, res2]) => {
         this.updateCategories = res1.items;
@@ -53,6 +53,5 @@ export class DataService {
       }));
 
   };
-
 
 }

@@ -1,9 +1,9 @@
-import { CategoryInterface } from "./category.interface";
-
 export interface ItemInterface {
   id?: string,
   code: string,
   name: string,
   description: string,
-  category: string
+  category: string,
+  defaultPrice: number,
+  defaultCost: number,
 }

@@ -1,0 +1,43 @@
+<ng-container *ngIf="loading$ | async else mainTemplate">
+
+  <div class="flex w-screen h-screen items-center justify-center">
+    <span class="spinner animate-spin"></span>
+  </div>
+
+</ng-container>
+
+<ng-template #mainTemplate>
+
+  <div class="p-10 w-full">
+
+    <div class="w-full">
+
+      <div id="tab-buttons" class="flex items-center justify-center">
+        <button class="text-sm font-semibold text-white transition-all hover:shadow hover:bg-blue-600 hover:ring inline-block px-3 py-1 m-0.5 w-32 bg-blue-400 rounded"
+                [ngClass]="{ 'bg-blue-600 hover:bg-blue-600 hover:ring-0' : animationIndex===0 }" (click)="cycleTabs(0)">Categories
+        </button>
+        <button class="text-sm font-semibold text-white transition-all hover:shadow hover:bg-blue-600 hover:ring inline-block px-3 py-1 m-0.5 w-32 bg-blue-400 rounded"
+                [ngClass]="{ 'bg-blue-600 hover:bg-blue-600 hover:ring-0' : animationIndex===1 }" (click)="cycleTabs(1)">Items
+        </button>
+      </div>
+
+      <div #tabsContainer class="shadow-lg border rounded-lg my-2 px-5 py-4 max-w-6xl mx-auto">
+        <ng-container [ngSwitch]="animationIndex">
+
+          <ng-template [ngSwitchCase]="0">
+            <app-category></app-category>
+          </ng-template>
+
+          <ng-template [ngSwitchCase]="1">
+            <app-item></app-item>
+          </ng-template>
+
+        </ng-container>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</ng-template>
